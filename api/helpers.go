@@ -202,6 +202,12 @@ func (st *DCOSTools) doRequest(method, url string, timeout time.Duration, body i
 		return responseBody, http.StatusBadRequest, err
 	}
 
+	if strings.Contains(url, ":5050") || strings.Contains(url, ":5051") {
+		if os.Getenv("MESOS_USER") != "" && os.Getenv("MESOS_PASS") != "" {
+			request.SetBasicAuth(os.Getenv("MESOS_USER"), os.Getenv("MESOS_PASS"))
+		}
+	}
+
 	client := NewHTTPClient(timeout, st.Transport)
 	resp, err := client.Do(request)
 	if err != nil {

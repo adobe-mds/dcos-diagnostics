@@ -499,6 +499,13 @@ func (j *DiagnosticsJob) getHTTPAddToZip(node Node, endpoints map[string]string,
 		}
 		request.Header.Add("Accept-Encoding", "gzip")
 
+		// Inject Mesos Auth where needed
+		if strings.Contains(fullURL, ":5050") || strings.Contains(fullURL, ":5051") {
+			if os.Getenv("MESOS_USER") != "" && os.Getenv("MESOS_PASS") != "" {
+				request.SetBasicAuth(os.Getenv("MESOS_USER"), os.Getenv("MESOS_PASS"))
+			}
+		}
+
 		client := NewHTTPClient(timeout, j.Transport)
 		resp, err := client.Do(request)
 		if err != nil {
